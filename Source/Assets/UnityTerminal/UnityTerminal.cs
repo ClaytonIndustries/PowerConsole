@@ -66,7 +66,7 @@ namespace CI.UnityTerminal
         {
             if (IsEnabled)
             {
-                _controller.Log(logLevel, message);
+                _controller.Log(logLevel, message, false);
             }
         }
 

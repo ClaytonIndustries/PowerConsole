@@ -37,6 +37,9 @@ namespace CI.UnityTerminal.Core
         private TMP_InputField _input;
         private TextMeshProUGUI _title;
         private Button _closeButton;
+        private Scrollbar _scrollbar;
+
+        private bool _isFollowingTail = true;
 
         private readonly Queue<string> _buffer = new Queue<string>();
 
@@ -49,6 +52,7 @@ namespace CI.UnityTerminal.Core
             _input = GameObject.Find("TerminalInput").GetComponent<TMP_InputField>();
             _title = GameObject.Find("TerminalTitle").GetComponent<TextMeshProUGUI>();
             _closeButton = GameObject.Find("CloseButton").GetComponent<Button>();
+            _scrollbar = GameObject.Find("Scrollbar Vertical").GetComponent<Scrollbar>();
 
             _closeButton.onClick.AddListener(() =>
             {
@@ -56,18 +60,22 @@ namespace CI.UnityTerminal.Core
                 UpdateVisibility();
             });
 
+            _scrollbar.onValueChanged.AddListener(x =>
+            {
+                _isFollowingTail = x < 0.1;
+            });
+
             UpdateVisibility();
         }
 
         public void Update()
         {
-            if (OpenCloseHotkeys.Any())
+            if (OpenCloseHotkeys.Any() &&
+                OpenCloseHotkeys.All(x => Input.GetKey(x)) && 
+                Input.GetKeyDown(OpenCloseHotkeys.Last()))
             {
-                if (OpenCloseHotkeys.All(x => Input.GetKey(x)) && Input.GetKeyDown(OpenCloseHotkeys.Last()))
-                {
-                    IsVisible = !IsVisible;
-                    UpdateVisibility();
-                }
+                IsVisible = !IsVisible;
+                UpdateVisibility();
             }
 
             if (IsVisible && Input.GetKeyDown(KeyCode.Return))
@@ -76,7 +84,7 @@ namespace CI.UnityTerminal.Core
             }
         }
 
-        public void Log(LogLevel logLevel, string message)
+        public void Log(LogLevel logLevel, string message, bool forceScroll)
         {
             if (logLevel < LogLevel)
             {
@@ -102,7 +110,11 @@ namespace CI.UnityTerminal.Core
             if (IsVisible)
             {
                 RefreshDisplay();
-                ScrollToEnd();
+
+                if (forceScroll || _isFollowingTail)
+                {
+                    ScrollToEnd();
+                }
             }
         }
 
@@ -132,7 +144,7 @@ namespace CI.UnityTerminal.Core
             }
             else
             {
-                Log(LogLevel.None, _input.text);
+                Log(LogLevel.None, _input.text, true);
             }
 
             CommandEntered?.Invoke(this, new CommandEnteredEventArgs() { Command = _input.text });
