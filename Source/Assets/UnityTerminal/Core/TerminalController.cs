@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,22 +10,32 @@ namespace CI.UnityTerminal.Core
 {
     public class TerminalController : MonoBehaviour, IDragHandler
     {
-        private bool isVisible;
+        private bool _isVisible;
         public bool IsVisible
         {
-            get { return isVisible; }
-            set { isVisible = value; SetVisibility(); }
+            get { return _isVisible; }
+            set { _isVisible = value; UpdateVisibility(); }
+        }
+
+        public string Title
+        {
+            get => _title.text;
+            set => _title.text = value;
         }
 
         public bool IsEnabled { get; set; }
-        public int MaxBufferSize { get; set; } = 1000;
+        public LogLevel LogLevel { get; set; } = LogLevel.Trace;
+        public TerminalColours Colours { get; set; } = new TerminalColours();
+        public int MaxBufferSize { get; set; } = 150;
 
         public event EventHandler<CommandEnteredEventArgs> CommandEntered;
 
         private ScrollRect _scroll;
         private TextMeshProUGUI _text;
         private TMP_InputField _input;
+        private TextMeshProUGUI _title;
         private Button _closeButton;
+
         private readonly Queue<string> _buffer = new Queue<string>();
 
         public void Awake()
@@ -36,17 +45,16 @@ namespace CI.UnityTerminal.Core
             _scroll = GameObject.Find("Scroll View").GetComponent<ScrollRect>();
             _text = GameObject.Find("TerminalFeed").GetComponent<TextMeshProUGUI>();
             _input = GameObject.Find("TerminalInput").GetComponent<TMP_InputField>();
+            _title = GameObject.Find("TerminalTitle").GetComponent<TextMeshProUGUI>();
             _closeButton = GameObject.Find("CloseButton").GetComponent<Button>();
 
             _closeButton.onClick.AddListener(() =>
             {
                 IsVisible = false;
-                SetVisibility();
+                UpdateVisibility();
             });
 
-            //_text.color = Color.green;
-
-            SetVisibility();
+            UpdateVisibility();
         }
 
         public void Update()
@@ -54,7 +62,7 @@ namespace CI.UnityTerminal.Core
             if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.I)) 
             {
                 IsVisible = !IsVisible;
-                SetVisibility();
+                UpdateVisibility();
             }
 
             if (IsVisible && Input.GetKeyDown(KeyCode.Return))
@@ -65,6 +73,11 @@ namespace CI.UnityTerminal.Core
 
         public void Log(LogLevel logLevel, string message)
         {
+            if (logLevel < LogLevel)
+            {
+                return;
+            }
+
             if (_buffer.Count >= MaxBufferSize)
             {
                 _buffer.Dequeue();
@@ -74,15 +87,18 @@ namespace CI.UnityTerminal.Core
 
             if (logLevel == LogLevel.None) 
             {
-                _buffer.Enqueue($"<color=\"{colour}\">{DateTime.Now:dd-MM-yyyy hh:mm:ss} {message}</color>");
+                _buffer.Enqueue($"<color=#{colour}>{DateTime.Now:dd-MM-yy hh:mm:ss} > {message}</color>");
             }
             else
             {
-                _buffer.Enqueue($"<color=\"{colour}\">{DateTime.Now:dd-MM-yyyy hh:mm:ss} [{logLevel}] {message}</color>");
+                _buffer.Enqueue($"<color=#{colour}>{DateTime.Now:dd-MM-yy hh:mm:ss} [{logLevel}] {message}</color>");
             }
 
-            _text.text = string.Join(Environment.NewLine, _buffer);
-            ScrollToEnd();
+            if (IsVisible)
+            {
+                RefreshDisplay();
+                ScrollToEnd();
+            }
         }
 
         public void ClearDisplay()
@@ -91,12 +107,13 @@ namespace CI.UnityTerminal.Core
             _buffer.Clear();
         }
 
-        private void SetVisibility()
+        private void UpdateVisibility()
         {
             gameObject.transform.localScale = IsVisible ? Vector3.one : Vector3.zero;
 
             if (IsVisible)
             {
+                RefreshDisplay();
                 FocusInput();
                 ScrollToEnd();
             }
@@ -113,12 +130,9 @@ namespace CI.UnityTerminal.Core
                 Log(LogLevel.None, _input.text);
             }
 
-            if (!string.IsNullOrEmpty(_input.text))
-            {
-                CommandEntered?.Invoke(this, new CommandEnteredEventArgs() { Command = _input.text });
-                ClearInput();
-                FocusInput();
-            }
+            CommandEntered?.Invoke(this, new CommandEnteredEventArgs() { Command = _input.text });
+            ClearInput();
+            FocusInput();
         }
 
         private void ClearInput()
@@ -135,21 +149,31 @@ namespace CI.UnityTerminal.Core
         {
             switch (logLevel)
             {
-                case LogLevel.Error:
-                    return "red";
                 case LogLevel.Trace:
-                    return "white";
+                    return ColorUtility.ToHtmlStringRGB(Colours.TraceColour);
+                case LogLevel.Debug:
+                    return ColorUtility.ToHtmlStringRGB(Colours.DebugColor);
+                case LogLevel.Information:
+                    return ColorUtility.ToHtmlStringRGB(Colours.InformationColor);
+                case LogLevel.Warning:
+                    return ColorUtility.ToHtmlStringRGB(Colours.WarningColor);
+                case LogLevel.Error:
+                    return ColorUtility.ToHtmlStringRGB(Colours.ErrorColor);
+                case LogLevel.Critical:
+                    return ColorUtility.ToHtmlStringRGB(Colours.CriticalColor);
                 default:
-                    return "green";
+                    return ColorUtility.ToHtmlStringRGB(Colours.NoneColour);
             }
+        }
+
+        private void RefreshDisplay()
+        {
+            _text.text = string.Join(Environment.NewLine, _buffer);
         }
 
         private void ScrollToEnd()
         {
-            if (IsVisible)
-            {
-                StartCoroutine(ApplyScrollToEnd());
-            }
+            StartCoroutine(ApplyScrollToEnd());
         }
 
         IEnumerator ApplyScrollToEnd()

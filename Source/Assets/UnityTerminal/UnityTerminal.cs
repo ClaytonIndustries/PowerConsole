@@ -18,6 +18,24 @@ namespace CI.UnityTerminal
             set => _controller.IsVisible = value;
         }
 
+        public static LogLevel LogLevel
+        {
+            get => _controller.LogLevel;
+            set => _controller.LogLevel = value;
+        }
+
+        public static TerminalColours Colours
+        {
+            get => _controller.Colours;
+            set => _controller.Colours = value;
+        }
+
+        public static string Title
+        {
+            get => _controller.Title;
+            set => _controller.Title = value;
+        }
+
         public static int MaxBufferSize
         {
             get => _controller.MaxBufferSize;
