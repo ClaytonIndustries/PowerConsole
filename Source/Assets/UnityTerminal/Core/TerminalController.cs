@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -26,8 +27,7 @@ namespace CI.UnityTerminal.Core
         private TextMeshProUGUI _text;
         private TMP_InputField _input;
         private Button _closeButton;
-        private int _bufferSize;
-        private readonly StringBuilder _builder = new StringBuilder();
+        private readonly Queue<string> _buffer = new Queue<string>();
 
         public void Awake()
         {
@@ -65,33 +65,30 @@ namespace CI.UnityTerminal.Core
 
         public void Log(LogLevel logLevel, string message)
         {
-            if (_bufferSize >= MaxBufferSize)
+            if (_buffer.Count >= MaxBufferSize)
             {
-                _builder.Remove(0, _text.text.IndexOf(Environment.NewLine) + Environment.NewLine.Length);
-                _bufferSize--;
+                _buffer.Dequeue();
             }
 
             var colour = GetColour(logLevel);
 
             if (logLevel == LogLevel.None) 
             {
-                _builder.AppendLine($"<color=\"{colour}\">{DateTime.Now:dd-MM-yyyy hh:mm:ss} {message}</color>");
+                _buffer.Enqueue($"<color=\"{colour}\">{DateTime.Now:dd-MM-yyyy hh:mm:ss} {message}</color>");
             }
             else
             {
-                _builder.AppendLine($"<color=\"{colour}\">{DateTime.Now:dd-MM-yyyy hh:mm:ss} [{logLevel}] {message}</color>");
+                _buffer.Enqueue($"<color=\"{colour}\">{DateTime.Now:dd-MM-yyyy hh:mm:ss} [{logLevel}] {message}</color>");
             }
 
-            _text.text = _builder.ToString();
-            _bufferSize++;
+            _text.text = string.Join(Environment.NewLine, _buffer);
             ScrollToEnd();
         }
 
         public void ClearDisplay()
         {
             _text.text = string.Empty;
-            _builder.Clear();
-            _bufferSize = 0;
+            _buffer.Clear();
         }
 
         private void SetVisibility()
