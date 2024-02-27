@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -27,6 +28,7 @@ namespace CI.UnityTerminal.Core
         public LogLevel LogLevel { get; set; } = LogLevel.Trace;
         public TerminalColours Colours { get; set; } = new TerminalColours();
         public int MaxBufferSize { get; set; } = 150;
+        public List<KeyCode> OpenCloseHotkeys { get; set; } = new List<KeyCode>() { KeyCode.LeftControl, KeyCode.I };
 
         public event EventHandler<CommandEnteredEventArgs> CommandEntered;
 
@@ -59,10 +61,13 @@ namespace CI.UnityTerminal.Core
 
         public void Update()
         {
-            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.I)) 
+            if (OpenCloseHotkeys.Any())
             {
-                IsVisible = !IsVisible;
-                UpdateVisibility();
+                if (OpenCloseHotkeys.All(x => Input.GetKey(x)) && Input.GetKeyDown(OpenCloseHotkeys.Last()))
+                {
+                    IsVisible = !IsVisible;
+                    UpdateVisibility();
+                }
             }
 
             if (IsVisible && Input.GetKeyDown(KeyCode.Return))

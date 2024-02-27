@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CI.UnityTerminal.Core;
 using UnityEngine;
 
@@ -40,6 +41,12 @@ namespace CI.UnityTerminal
         {
             get => _controller.MaxBufferSize;
             set => _controller.MaxBufferSize = value;
+        }
+
+        public static List<KeyCode> OpenCloseHotkeys
+        {
+            get => _controller.OpenCloseHotkeys;
+            set => _controller.OpenCloseHotkeys = value;
         }
 
         public static event EventHandler<CommandEnteredEventArgs> CommandEntered;
