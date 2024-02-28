@@ -1,14 +1,12 @@
 using System.Collections.Generic;
 using CI.UnityTerminal;
-using CI.UnityTerminal.Core;
 using UnityEngine;
 
 public class ExampleSceneManagerController : MonoBehaviour
 {
     private float _nextTimeCall;
 
-    // Start is called before the first frame update
-    void Start()
+    public void Start()
     {
         UnityTerminal.Initialise(new TerminalConfig()
         {
@@ -62,8 +60,7 @@ public class ExampleSceneManagerController : MonoBehaviour
         _nextTimeCall = Time.time + 0.1f;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Update()
     {
         if (Time.time >= _nextTimeCall)
         {
@@ -72,7 +69,7 @@ public class ExampleSceneManagerController : MonoBehaviour
         }
     }
 
-    void Command1(CommandCallback callback)
+    public void Command1(CommandCallback callback)
     {
         Debug.Log(callback.Command);
         Debug.Log(callback.Args);
