@@ -370,7 +370,10 @@ namespace CI.UnityTerminal.Core
 
         public void OnDrag(PointerEventData eventData)
         {
-            transform.position = eventData.position;
+            if (!_config.IsFixed)
+            {
+                transform.position = eventData.position;
+            }
         }
     }
 }

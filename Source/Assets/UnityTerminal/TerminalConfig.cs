@@ -7,6 +7,7 @@ namespace CI.UnityTerminal
         public int MaxBufferSize { get; set; }
         public TerminalPosition Position { get; set; }
         public int Height { get; set; }
+        public bool IsFixed { get; set; }
 
         public TerminalConfig()
         {
@@ -14,6 +15,7 @@ namespace CI.UnityTerminal
             MaxBufferSize = 150;
             Position = TerminalPosition.Bottom;
             Height = 400;
+            IsFixed = false;
         }
     }
 }
