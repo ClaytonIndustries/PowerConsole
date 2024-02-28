@@ -12,9 +12,6 @@ namespace CI.UnityTerminal.Core
     public class TerminalController : MonoBehaviour, IDragHandler
     {
         private const int _maxCommandHistory = 50;
-        private const int _defaultMaxBufferSize = 150;
-        private const string _clearCommand = "clear";
-        private const string _helpCommand = "help";
 
         private bool _isVisible;
         public bool IsVisible
@@ -31,8 +28,6 @@ namespace CI.UnityTerminal.Core
 
         public bool IsEnabled { get; set; }
         public LogLevel LogLevel { get; set; } = LogLevel.Trace;
-        public TerminalColours Colours { get; set; } = new TerminalColours();
-        public int MaxBufferSize { get; set; } = _defaultMaxBufferSize;
         public List<KeyCode> OpenCloseHotkeys { get; set; } = new List<KeyCode>() { KeyCode.LeftControl, KeyCode.I };
 
         public event EventHandler<CommandEnteredEventArgs> CommandEntered;
@@ -43,10 +38,11 @@ namespace CI.UnityTerminal.Core
         private Button _closeButton;
         private Scrollbar _scrollbar;
 
+        private TerminalConfig _config;
         private bool _isFollowingTail = true;
         private int _commandHistoryIndex = -1;
+        private Queue<string> _buffer;
 
-        private readonly Queue<string> _buffer = new Queue<string>(_defaultMaxBufferSize);
         private readonly List<string> _commandHistory = new List<string>(_maxCommandHistory);
         private Dictionary<string, CustomCommand> _commands = new Dictionary<string, CustomCommand>();
 
@@ -113,9 +109,16 @@ namespace CI.UnityTerminal.Core
             }
         }
 
+        public void Initialise(TerminalConfig config)
+        {
+            _config = config;
+
+            _buffer = new Queue<string>(_config.MaxBufferSize);
+        }
+
         public void Log(LogLevel logLevel, string message, bool forceScroll)
         {
-            if (_buffer.Count >= MaxBufferSize)
+            if (_buffer.Count >= _config.MaxBufferSize)
             {
                 _buffer.Dequeue();
             }
@@ -212,19 +215,19 @@ namespace CI.UnityTerminal.Core
             switch (logLevel)
             {
                 case LogLevel.Trace:
-                    return ColorUtility.ToHtmlStringRGB(Colours.TraceColour);
+                    return ColorUtility.ToHtmlStringRGB(_config.Colours.TraceColour);
                 case LogLevel.Debug:
-                    return ColorUtility.ToHtmlStringRGB(Colours.DebugColor);
+                    return ColorUtility.ToHtmlStringRGB(_config.Colours.DebugColor);
                 case LogLevel.Information:
-                    return ColorUtility.ToHtmlStringRGB(Colours.InformationColor);
+                    return ColorUtility.ToHtmlStringRGB(_config.Colours.InformationColor);
                 case LogLevel.Warning:
-                    return ColorUtility.ToHtmlStringRGB(Colours.WarningColor);
+                    return ColorUtility.ToHtmlStringRGB(_config.Colours.WarningColor);
                 case LogLevel.Error:
-                    return ColorUtility.ToHtmlStringRGB(Colours.ErrorColor);
+                    return ColorUtility.ToHtmlStringRGB(_config.Colours.ErrorColor);
                 case LogLevel.Critical:
-                    return ColorUtility.ToHtmlStringRGB(Colours.CriticalColor);
+                    return ColorUtility.ToHtmlStringRGB(_config.Colours.CriticalColor);
                 default:
-                    return ColorUtility.ToHtmlStringRGB(Colours.NoneColour);
+                    return ColorUtility.ToHtmlStringRGB(_config.Colours.NoneColour);
             }
         }
 
