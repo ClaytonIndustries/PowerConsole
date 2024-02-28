@@ -64,7 +64,7 @@ namespace CI.UnityTerminal
 
         public static void Log(LogLevel logLevel, string message)
         {
-            if (IsEnabled)
+            if (IsEnabled && logLevel >= LogLevel)
             {
                 _controller.Log(logLevel, message, false);
             }
@@ -77,5 +77,7 @@ namespace CI.UnityTerminal
                 _controller.ClearDisplay();
             }
         }
+
+        public static void RegisterCommand(string command, string description, Action<CommandCallback> callback, List<CommandArgument> args) => _controller.RegisterCommand(command, description, callback, args);
     }
 }

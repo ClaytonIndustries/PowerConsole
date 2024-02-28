@@ -1,7 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,6 +11,11 @@ namespace CI.UnityTerminal.Core
 {
     public class TerminalController : MonoBehaviour, IDragHandler
     {
+        private const int _maxCommandHistory = 50;
+        private const int _defaultMaxBufferSize = 150;
+        private const string _clearCommand = "clear";
+        private const string _helpCommand = "help";
+
         private bool _isVisible;
         public bool IsVisible
         {
@@ -27,28 +32,28 @@ namespace CI.UnityTerminal.Core
         public bool IsEnabled { get; set; }
         public LogLevel LogLevel { get; set; } = LogLevel.Trace;
         public TerminalColours Colours { get; set; } = new TerminalColours();
-        public int MaxBufferSize { get; set; } = 150;
+        public int MaxBufferSize { get; set; } = _defaultMaxBufferSize;
         public List<KeyCode> OpenCloseHotkeys { get; set; } = new List<KeyCode>() { KeyCode.LeftControl, KeyCode.I };
 
         public event EventHandler<CommandEnteredEventArgs> CommandEntered;
 
-        private ScrollRect _scroll;
-        private TextMeshProUGUI _text;
+        private TMP_InputField _text;
         private TMP_InputField _input;
         private TextMeshProUGUI _title;
         private Button _closeButton;
         private Scrollbar _scrollbar;
 
         private bool _isFollowingTail = true;
+        private int _commandHistoryIndex = -1;
 
-        private readonly Queue<string> _buffer = new Queue<string>();
+        private readonly Queue<string> _buffer = new Queue<string>(_defaultMaxBufferSize);
+        private readonly List<string> _commandHistory = new List<string>(_maxCommandHistory);
+        private Dictionary<string, RegisteredCommand> _customCommands = new Dictionary<string, RegisteredCommand>();
 
         public void Awake()
         {
             DontDestroyOnLoad(gameObject);
-
-            _scroll = GameObject.Find("Scroll View").GetComponent<ScrollRect>();
-            _text = GameObject.Find("TerminalFeed").GetComponent<TextMeshProUGUI>();
+            _text = GameObject.Find("TerminalFeed").GetComponent<TMP_InputField>();
             _input = GameObject.Find("TerminalInput").GetComponent<TMP_InputField>();
             _title = GameObject.Find("TerminalTitle").GetComponent<TextMeshProUGUI>();
             _closeButton = GameObject.Find("CloseButton").GetComponent<Button>();
@@ -62,7 +67,7 @@ namespace CI.UnityTerminal.Core
 
             _scrollbar.onValueChanged.AddListener(x =>
             {
-                _isFollowingTail = x < 0.1;
+                _isFollowingTail = x > 0.9;
             });
 
             UpdateVisibility();
@@ -78,19 +83,25 @@ namespace CI.UnityTerminal.Core
                 UpdateVisibility();
             }
 
-            if (IsVisible && Input.GetKeyDown(KeyCode.Return))
+            if (IsVisible)
             {
-                OnEnterPressed();
+                if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    OnEnterPressed();
+                }
+                if (Input.GetKeyDown(KeyCode.UpArrow))
+                {
+                    IncrementCommandHistory(-1);
+                }
+                if (Input.GetKeyDown(KeyCode.DownArrow))
+                {
+                    IncrementCommandHistory(1);
+                }
             }
         }
 
         public void Log(LogLevel logLevel, string message, bool forceScroll)
         {
-            if (logLevel < LogLevel)
-            {
-                return;
-            }
-
             if (_buffer.Count >= MaxBufferSize)
             {
                 _buffer.Dequeue();
@@ -100,11 +111,11 @@ namespace CI.UnityTerminal.Core
 
             if (logLevel == LogLevel.None) 
             {
-                _buffer.Enqueue($"<color=#{colour}>{DateTime.Now:dd-MM-yy hh:mm:ss} > {message}</color>");
+                _buffer.Enqueue($"<color=#{colour}>{DateTime.Now:HH:mm:ss} > {message}</color>");
             }
             else
             {
-                _buffer.Enqueue($"<color=#{colour}>{DateTime.Now:dd-MM-yy hh:mm:ss} [{logLevel}] {message}</color>");
+                _buffer.Enqueue($"<color=#{colour}>{DateTime.Now:HH:mm:ss} [{logLevel}] {message}</color>");
             }
 
             if (IsVisible)
@@ -131,20 +142,42 @@ namespace CI.UnityTerminal.Core
             if (IsVisible)
             {
                 RefreshDisplay();
-                FocusInput();
                 ScrollToEnd();
+                FocusInput();
             }
         }
 
         private void OnEnterPressed()
         {
-            if (_input.text == "clear")
+            if (_input.text == _clearCommand)
             {
                 ClearDisplay();
             }
+            else if (_input.text == _helpCommand)
+            {
+                foreach (var command in _customCommands)
+                {
+                    var descriptionString = string.IsNullOrWhiteSpace(command.Value.Description) ? string.Empty : $" - {command.Value.Description}";
+                    var argString = command.Value.Args.Any() ? $" | {string.Join(" ", command.Value.Args.Select(x => $"[{x.Name}]{(string.IsNullOrWhiteSpace(x.Description) ? string.Empty : $" {x.Description}")}"))}" : string.Empty;
+
+                    Log(LogLevel.None, $"{command.Key}{descriptionString}{argString}", true);
+                }
+            }
             else
             {
+                HandleCustomCommands();
+
                 Log(LogLevel.None, _input.text, true);
+
+                if (_commandHistory.Count >= _maxCommandHistory)
+                {
+                    _commandHistory.RemoveAt(0);
+                    _commandHistory.Add(_input.text);
+                }
+                else
+                {
+                    _commandHistory.Add(_input.text);
+                }
             }
 
             CommandEntered?.Invoke(this, new CommandEnteredEventArgs() { Command = _input.text });
@@ -190,18 +223,138 @@ namespace CI.UnityTerminal.Core
 
         private void ScrollToEnd()
         {
-            StartCoroutine(ApplyScrollToEnd());
+            _scrollbar.value = 1;
         }
 
-        IEnumerator ApplyScrollToEnd()
+        private void IncrementCommandHistory(int value)
         {
-            yield return new WaitForEndOfFrame();
-            _scroll.normalizedPosition = new Vector2(0, 0);
+            _commandHistoryIndex += value;
+
+            if (_commandHistoryIndex < -1)
+            {
+                _commandHistoryIndex = _commandHistory.Count - 1;
+            }
+            else if (_commandHistoryIndex > _commandHistory.Count -1)
+            {
+                _commandHistoryIndex = -1;
+            }
+
+            if (_commandHistoryIndex >= 0)
+            {
+                _input.text = _commandHistory[_commandHistoryIndex];
+            }
+            else
+            {
+                _input.text = string.Empty;
+            }
+        }
+
+        private void HandleCustomCommands()
+        {
+            string command;
+            var args = new Dictionary<string, string>();
+            var indexOfFirstArg = _input.text.IndexOf(" -");
+
+            if (indexOfFirstArg >= 0)
+            {
+                command = _input.text.Substring(0, indexOfFirstArg).Trim();
+
+                var argString = _input.text.Substring(indexOfFirstArg + 1).Trim();
+                var argsList = new List<string>();
+
+                var index = 0;
+                var ignoreSpaces = false;
+                var builder = new StringBuilder();
+                while (index < argString.Length)
+                {
+                    if (!ignoreSpaces && argString[index] == '\"')
+                    {
+                        ignoreSpaces = true;
+                    }
+                    else if (ignoreSpaces && argString[index] == '\"')
+                    {
+                        ignoreSpaces = false;
+                    }
+
+                    if ((argString[index] != ' ' || (argString[index] == ' ' && ignoreSpaces)) && argString[index] != '\"')
+                    {
+                        builder.Append(argString[index]);
+                    }
+                    if ((argString[index] == ' ' && !ignoreSpaces) || index == argString.Length - 1)
+                    {
+                        argsList.Add(builder.ToString());
+                        builder.Clear();
+                    }
+                    index++;
+                }
+
+                index = 0;
+                while (index < argsList.Count)
+                {
+                    var noArg = false;
+                    var option = argsList[index];
+                    var arg = index + 1 < argsList.Count ? argsList[index + 1]: string.Empty;
+
+                    if (arg.StartsWith("-"))
+                    {
+                        arg = string.Empty;
+                        noArg = true;
+                    }
+
+                    args[option] = arg;
+
+                    index += noArg ? 1 : 2;
+                }
+            }
+            else
+            {
+                command = _input.text.Trim();
+            }
+
+            if (_customCommands.ContainsKey(command))
+            {
+                _customCommands[command].Callback(new CommandCallback()
+                {
+                    Command = command,
+                    Args = args
+                });
+            }
         }
 
         public void OnDrag(PointerEventData eventData)
         {
             transform.position = eventData.position;
         }
+
+        public void RegisterCommand(string command, string description, Action<CommandCallback> callback, List<CommandArgument> args)
+        {
+            _customCommands[command] = new RegisteredCommand()
+            {
+                Command = command,
+                Description = description,
+                Callback = callback,
+                Args = args
+            };
+        }
+    }
+
+    public class CommandArgument
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+    }
+
+    public class RegisteredCommand
+    {
+        public List<CommandArgument> Args { get; set; }
+        public string Command { get; set; }
+        public string Description { get; set; }
+        public Action<CommandCallback> Callback { get; set; }
+    }
+
+    public class CommandCallback
+    {
+        public string Command { get; set; }
+        public Dictionary<string, string> Args { get; set; }
     }
 }
