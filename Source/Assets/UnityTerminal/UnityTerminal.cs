@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CI.UnityTerminal.Core;
 using UnityEngine;
 
@@ -47,7 +48,8 @@ namespace CI.UnityTerminal
         {
             if (_controller == null)
             {
-                _controller = GameObject.Find("Console").GetComponent<TerminalController>();
+                _controller = UnityEngine.Object.FindObjectsByType<TerminalController>(FindObjectsInactive.Include, FindObjectsSortMode.None).First();
+                _controller.gameObject.SetActive(true);
                 _controller.CommandEntered += (s, e) => CommandEntered?.Invoke(s, e);
             }
 
@@ -72,6 +74,6 @@ namespace CI.UnityTerminal
 
         public static void RegisterCommand(CustomCommand command) => _controller.RegisterCommand(command);
 
-        public static void UnregisterCommand(string command) => _controller.UnregisterCommand(command);
+        public static void UnregisterCommand(string command) => _controller.UnregisterCommand(command); 
     }
 }

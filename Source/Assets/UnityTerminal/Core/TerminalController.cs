@@ -48,7 +48,6 @@ namespace CI.UnityTerminal.Core
 
         public void Awake()
         {
-            DontDestroyOnLoad(gameObject);
             _text = GameObject.Find("TerminalFeed").GetComponent<TMP_InputField>();
             _input = GameObject.Find("TerminalInput").GetComponent<TMP_InputField>();
             _title = GameObject.Find("TerminalTitle").GetComponent<TextMeshProUGUI>();
@@ -112,6 +111,8 @@ namespace CI.UnityTerminal.Core
             _config = config;
 
             _buffer = new Queue<string>(_config.MaxBufferSize);
+
+            SetPosition();
         }
 
         public void Log(LogLevel logLevel, string message, bool forceScroll)
@@ -164,7 +165,7 @@ namespace CI.UnityTerminal.Core
 
         private void UpdateVisibility()
         {
-            gameObject.transform.localScale = IsVisible ? Vector3.one : Vector3.zero;
+            transform.localScale = IsVisible ? Vector3.one : Vector3.zero;
 
             if (IsVisible)
             {
@@ -345,6 +346,26 @@ namespace CI.UnityTerminal.Core
                     Args = args
                 });
             }
+        }
+
+        private void SetPosition()
+        {
+            var rectTransform = GetComponent<RectTransform>();
+
+            if (_config.Position == TerminalPosition.Bottom)
+            {
+                rectTransform.anchorMin = new Vector2(0, 0);
+                rectTransform.anchorMax = new Vector2(1, 0);
+                rectTransform.pivot = new Vector2(0.5f, 0);
+            }
+            else
+            {
+                rectTransform.anchorMin = new Vector2(0, 1);
+                rectTransform.anchorMax = new Vector2(1, 1);
+                rectTransform.pivot = new Vector2(0.5f, 1);
+            }
+
+            rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, _config.Height);
         }
 
         public void OnDrag(PointerEventData eventData)

@@ -10,7 +10,10 @@ public class ExampleSceneManagerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        UnityTerminal.Initialise();
+        UnityTerminal.Initialise(new TerminalConfig()
+        {
+            Position = TerminalPosition.Bottom
+        });
         UnityTerminal.IsEnabled = true;
 
         UnityTerminal.Log(LogLevel.Trace, "Hello World");
