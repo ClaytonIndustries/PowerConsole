@@ -354,15 +354,35 @@ namespace CI.UnityTerminal.Core
 
             if (_config.Position == TerminalPosition.Bottom)
             {
-                rectTransform.anchorMin = new Vector2(0, 0);
-                rectTransform.anchorMax = new Vector2(1, 0);
-                rectTransform.pivot = new Vector2(0.5f, 0);
+                if (_config.Width == null)
+                {
+                    rectTransform.anchorMin = new Vector2(0, 0);
+                    rectTransform.anchorMax = new Vector2(1, 0);
+                    rectTransform.pivot = new Vector2(0.5f, 0);
+                }
+                else
+                {
+                    rectTransform.anchorMin = new Vector2(0, 0);
+                    rectTransform.anchorMax = new Vector2(0, 0);
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.sizeDelta = new Vector2((float)_config.Width, rectTransform.sizeDelta.y);
+                }
             }
             else
             {
-                rectTransform.anchorMin = new Vector2(0, 1);
-                rectTransform.anchorMax = new Vector2(1, 1);
-                rectTransform.pivot = new Vector2(0.5f, 1);
+                if (_config.Width == null)
+                {
+                    rectTransform.anchorMin = new Vector2(0, 1);
+                    rectTransform.anchorMax = new Vector2(1, 1);
+                    rectTransform.pivot = new Vector2(0.5f, 1);
+                }
+                else
+                {
+                    rectTransform.anchorMin = new Vector2(0, 1);
+                    rectTransform.anchorMax = new Vector2(0, 1);
+                    rectTransform.pivot = new Vector2(0, 1);
+                    rectTransform.sizeDelta = new Vector2((float)_config.Width, rectTransform.sizeDelta.y);
+                }
             }
 
             rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, _config.Height);

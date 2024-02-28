@@ -10,7 +10,6 @@ public class ExampleSceneManagerController : MonoBehaviour
     {
         UnityTerminal.Initialise(new TerminalConfig()
         {
-            Position = TerminalPosition.Bottom
         });
         UnityTerminal.IsEnabled = true;
 
