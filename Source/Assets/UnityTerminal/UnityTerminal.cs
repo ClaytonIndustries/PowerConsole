@@ -78,6 +78,8 @@ namespace CI.UnityTerminal
             }
         }
 
-        public static void RegisterCommand(string command, string description, Action<CommandCallback> callback, List<CommandArgument> args) => _controller.RegisterCommand(command, description, callback, args);
+        public static void RegisterCommand(CustomCommand command) => _controller.RegisterCommand(command);
+
+        public static void UnregisterCommand(string command) => _controller.UnregisterCommand(command);
     }
 }

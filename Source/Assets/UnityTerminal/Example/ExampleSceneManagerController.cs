@@ -28,15 +28,32 @@ public class ExampleSceneManagerController : MonoBehaviour
             Debug.Log(e.Command);
         };
 
-        UnityTerminal.RegisterCommand("npm run start", "starts the dev server", Command1, new List<CommandArgument>());
-        UnityTerminal.RegisterCommand("npm run lint", "lints the project", Command1, new List<CommandArgument>()
+        UnityTerminal.RegisterCommand(new CustomCommand()
         {
-            new CommandArgument() { Name = "-f", Description = "Fixed detected issues" }
+            Command = "npm run start",
+            Description = "Starts the dev server",
+            Callback = Command1
         });
-        UnityTerminal.RegisterCommand("npm run build", "builds the project", Command1, new List<CommandArgument>()
+        UnityTerminal.RegisterCommand(new CustomCommand()
         {
-            new CommandArgument() { Name = "-p", Description = "port number to host on" },
-            new CommandArgument() { Name = "-t", Description = "title of the window" }
+            Command = "npm run lint",
+            Description = "lints the project",
+            Args = new List<CommandArgument>()
+            {
+                new CommandArgument() { Name = "-f", Description = "Fixes detected issues" }
+            },
+            Callback = Command1
+        });
+        UnityTerminal.RegisterCommand(new CustomCommand()
+        {
+            Command = "npm run build",
+            Description = "Builds the project",
+            Args = new List<CommandArgument>()
+            {
+            new CommandArgument() { Name = "-p", Description = "Port number to host on" },
+            new CommandArgument() { Name = "-t", Description = "Title of the window" }
+            },
+            Callback = Command1
         });
 
         _nextTimeCall = Time.time + 0.1f;

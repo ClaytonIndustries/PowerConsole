@@ -48,7 +48,7 @@ namespace CI.UnityTerminal.Core
 
         private readonly Queue<string> _buffer = new Queue<string>(_defaultMaxBufferSize);
         private readonly List<string> _commandHistory = new List<string>(_maxCommandHistory);
-        private Dictionary<string, RegisteredCommand> _customCommands = new Dictionary<string, RegisteredCommand>();
+        private Dictionary<string, CustomCommand> _commands = new Dictionary<string, CustomCommand>();
 
         public void Awake()
         {
@@ -68,6 +68,19 @@ namespace CI.UnityTerminal.Core
             _scrollbar.onValueChanged.AddListener(x =>
             {
                 _isFollowingTail = x > 0.9;
+            });
+
+            RegisterCommand(new CustomCommand()
+            {
+                Command = "clear",
+                Description = "Clears the terminal",
+                Callback = e => ClearDisplay()
+            });
+            RegisterCommand(new CustomCommand()
+            {
+                Command = "help",
+                Description = "Displays help content",
+                Callback = e => ShowHelpContent()
             });
 
             UpdateVisibility();
@@ -135,6 +148,19 @@ namespace CI.UnityTerminal.Core
             _buffer.Clear();
         }
 
+        public void RegisterCommand(CustomCommand command)
+        {
+            _commands[command.Command] = command;
+        }
+
+        public void UnregisterCommand(string command)
+        {
+            if (_commands.ContainsKey(command))
+            {
+                _commands.Remove(command);
+            }
+        }
+
         private void UpdateVisibility()
         {
             gameObject.transform.localScale = IsVisible ? Vector3.one : Vector3.zero;
@@ -149,36 +175,11 @@ namespace CI.UnityTerminal.Core
 
         private void OnEnterPressed()
         {
-            if (_input.text == _clearCommand)
-            {
-                ClearDisplay();
-            }
-            else if (_input.text == _helpCommand)
-            {
-                foreach (var command in _customCommands)
-                {
-                    var descriptionString = string.IsNullOrWhiteSpace(command.Value.Description) ? string.Empty : $" - {command.Value.Description}";
-                    var argString = command.Value.Args.Any() ? $" | {string.Join(" ", command.Value.Args.Select(x => $"[{x.Name}]{(string.IsNullOrWhiteSpace(x.Description) ? string.Empty : $" {x.Description}")}"))}" : string.Empty;
+            Log(LogLevel.None, _input.text, true);
 
-                    Log(LogLevel.None, $"{command.Key}{descriptionString}{argString}", true);
-                }
-            }
-            else
-            {
-                HandleCustomCommands();
+            HandleCommands();
 
-                Log(LogLevel.None, _input.text, true);
-
-                if (_commandHistory.Count >= _maxCommandHistory)
-                {
-                    _commandHistory.RemoveAt(0);
-                    _commandHistory.Add(_input.text);
-                }
-                else
-                {
-                    _commandHistory.Add(_input.text);
-                }
-            }
+            UpdateCommandHistory();
 
             CommandEntered?.Invoke(this, new CommandEnteredEventArgs() { Command = _input.text });
             ClearInput();
@@ -193,6 +194,17 @@ namespace CI.UnityTerminal.Core
         private void FocusInput()
         {
             _input.ActivateInputField();
+        }
+
+        private void ShowHelpContent()
+        {
+            foreach (var command in _commands)
+            {
+                var descriptionString = string.IsNullOrWhiteSpace(command.Value.Description) ? string.Empty : $" - {command.Value.Description}";
+                var argString = command.Value.Args != null && command.Value.Args.Any() ? $" | {string.Join(" ", command.Value.Args.Select(x => $"[{x.Name}]{(string.IsNullOrWhiteSpace(x.Description) ? string.Empty : $" {x.Description}")}"))}" : string.Empty;
+
+                Log(LogLevel.None, $"{command.Key}{descriptionString}{argString}", true);
+            }
         }
 
         private string GetColour(LogLevel logLevel)
@@ -226,6 +238,19 @@ namespace CI.UnityTerminal.Core
             _scrollbar.value = 1;
         }
 
+        private void UpdateCommandHistory()
+        {
+            if (_commandHistory.Count >= _maxCommandHistory)
+            {
+                _commandHistory.RemoveAt(0);
+                _commandHistory.Add(_input.text);
+            }
+            else
+            {
+                _commandHistory.Add(_input.text);
+            }
+        }
+
         private void IncrementCommandHistory(int value)
         {
             _commandHistoryIndex += value;
@@ -249,7 +274,7 @@ namespace CI.UnityTerminal.Core
             }
         }
 
-        private void HandleCustomCommands()
+        private void HandleCommands()
         {
             string command;
             var args = new Dictionary<string, string>();
@@ -311,9 +336,9 @@ namespace CI.UnityTerminal.Core
                 command = _input.text.Trim();
             }
 
-            if (_customCommands.ContainsKey(command))
+            if (_commands.ContainsKey(command))
             {
-                _customCommands[command].Callback(new CommandCallback()
+                _commands[command].Callback?.Invoke(new CommandCallback()
                 {
                     Command = command,
                     Args = args
@@ -325,36 +350,5 @@ namespace CI.UnityTerminal.Core
         {
             transform.position = eventData.position;
         }
-
-        public void RegisterCommand(string command, string description, Action<CommandCallback> callback, List<CommandArgument> args)
-        {
-            _customCommands[command] = new RegisteredCommand()
-            {
-                Command = command,
-                Description = description,
-                Callback = callback,
-                Args = args
-            };
-        }
-    }
-
-    public class CommandArgument
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
-    }
-
-    public class RegisteredCommand
-    {
-        public List<CommandArgument> Args { get; set; }
-        public string Command { get; set; }
-        public string Description { get; set; }
-        public Action<CommandCallback> Callback { get; set; }
-    }
-
-    public class CommandCallback
-    {
-        public string Command { get; set; }
-        public Dictionary<string, string> Args { get; set; }
     }
 }
