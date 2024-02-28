@@ -58,7 +58,6 @@ namespace CI.UnityTerminal.Core
             _closeButton.onClick.AddListener(() =>
             {
                 IsVisible = false;
-                UpdateVisibility();
             });
 
             _scrollbar.onValueChanged.AddListener(x =>
@@ -89,7 +88,6 @@ namespace CI.UnityTerminal.Core
                 Input.GetKeyDown(OpenCloseHotkeys.Last()))
             {
                 IsVisible = !IsVisible;
-                UpdateVisibility();
             }
 
             if (IsVisible)
