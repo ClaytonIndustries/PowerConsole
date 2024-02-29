@@ -44,7 +44,7 @@ namespace CI.UnityTerminal.Core
         private Queue<string> _buffer;
 
         private readonly List<string> _commandHistory = new List<string>(_maxCommandHistory);
-        private Dictionary<string, CustomCommand> _commands = new Dictionary<string, CustomCommand>();
+        private readonly Dictionary<string, CustomCommand> _commands = new Dictionary<string, CustomCommand>();
 
         public void Awake()
         {
