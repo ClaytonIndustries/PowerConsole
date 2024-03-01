@@ -1,18 +1,23 @@
 using System.Collections.Generic;
 using CI.UnityTerminal;
+using TMPro;
 using UnityEngine;
 
 public class ExampleSceneManagerController : MonoBehaviour
 {
+    public TMP_InputField LogMessageInputField;
+
     private float _nextTimeCall;
 
     public void Start()
     {
-        UnityTerminal.Initialise(new TerminalConfig()
-        {
-        });
+        // Initialise the terminal - make sure this is called once before trying to interact with it
+        UnityTerminal.Initialise();
+
+        // Enable the terminal - it is disabled by default
         UnityTerminal.IsEnabled = true;
 
+        // Log some messages to the terminal at different severity levels
         UnityTerminal.Log(LogLevel.Trace, "Hello World");
         UnityTerminal.Log(LogLevel.Debug, "Hello World");
         UnityTerminal.Log(LogLevel.Information, "Hello World");
@@ -20,43 +25,24 @@ public class ExampleSceneManagerController : MonoBehaviour
         UnityTerminal.Log(LogLevel.Error, "Hello World");
         UnityTerminal.Log(LogLevel.Critical, "Hello World");
 
-
+        // Listen for any user entered command
         UnityTerminal.CommandEntered += (s, e) =>
         {
-            // Dispatch to ui thread
-
-            Debug.Log(e.Command);
+            var enteredCommand = e.Command;
         };
 
-        UnityTerminal.RegisterCommand(new CustomCommand()
-        {
-            Command = "npm run start",
-            Description = "Starts the dev server",
-            Callback = Command1
-        });
-        UnityTerminal.RegisterCommand(new CustomCommand()
-        {
-            Command = "npm run lint",
-            Description = "lints the project",
-            Args = new List<CommandArgument>()
-            {
-                new CommandArgument() { Name = "-f", Description = "Fixes detected issues" }
-            },
-            Callback = Command1
-        });
+        // Register a command with a descripton and two arguments
         UnityTerminal.RegisterCommand(new CustomCommand()
         {
             Command = "npm run build",
             Description = "Builds the project",
             Args = new List<CommandArgument>()
             {
-            new CommandArgument() { Name = "-p", Description = "Port number to host on" },
-            new CommandArgument() { Name = "-t", Description = "Title of the window" }
+                new CommandArgument() { Name = "-p", Description = "Port number to host on" },
+                new CommandArgument() { Name = "-t", Description = "Title of the window" }
             },
-            Callback = Command1
+            Callback = Command1Callback
         });
-
-        _nextTimeCall = Time.time + 0.1f;
     }
 
     public void Update()
@@ -68,9 +54,14 @@ public class ExampleSceneManagerController : MonoBehaviour
         }
     }
 
-    public void Command1(CommandCallback callback)
+    public void WriteLogMessage()
     {
-        Debug.Log(callback.Command);
-        Debug.Log(callback.Args);
+        UnityTerminal.Log(LogLevel.Trace, LogMessageInputField.text);
+    }
+
+    private void Command1Callback(CommandCallback callback)
+    {
+        // Raised when "npm run" build is entered into the terminal
+        // Arguments are parsed and available in callback.Args
     }
 }

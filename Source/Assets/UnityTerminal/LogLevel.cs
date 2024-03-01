@@ -1,6 +1,9 @@
 ﻿
 namespace CI.UnityTerminal
 {
+    /// <summary>
+    /// The severity level of a message
+    /// </summary>
     public enum LogLevel
     {
         Trace = 0,
