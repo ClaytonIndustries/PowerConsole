@@ -66,15 +66,21 @@ namespace CI.UnityTerminal.Core
 
             RegisterCommand(new CustomCommand()
             {
+                Command = "help",
+                Description = "Displays help content",
+                Callback = e => ShowHelpContent()
+            });
+            RegisterCommand(new CustomCommand()
+            {
                 Command = "clear",
                 Description = "Clears the terminal",
                 Callback = e => ClearDisplay()
             });
             RegisterCommand(new CustomCommand()
             {
-                Command = "help",
-                Description = "Displays help content",
-                Callback = e => ShowHelpContent()
+                Command = "exit",
+                Description = "Closes the terminal",
+                Callback = e => IsVisible = false
             });
 
             UpdateVisibility();
@@ -367,8 +373,10 @@ namespace CI.UnityTerminal.Core
                     rectTransform.pivot = new Vector2(0, 0);
                     rectTransform.sizeDelta = new Vector2((float)_config.Width, rectTransform.sizeDelta.y);
                 }
+
+                rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, _config.Height);
             }
-            else
+            else if (_config.Position == TerminalPosition.Top)
             {
                 if (_config.Width == null)
                 {
@@ -383,9 +391,17 @@ namespace CI.UnityTerminal.Core
                     rectTransform.pivot = new Vector2(0, 1);
                     rectTransform.sizeDelta = new Vector2((float)_config.Width, rectTransform.sizeDelta.y);
                 }
-            }
 
-            rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, _config.Height);
+                rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, _config.Height);
+            }
+            else
+            {
+                rectTransform.anchorMin = new Vector2(0, 0);
+                rectTransform.anchorMax = new Vector2(1, 1);
+                rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                rectTransform.offsetMin = Vector2.zero;
+                rectTransform.offsetMax = Vector2.zero;
+            }
         }
 
         public void OnDrag(PointerEventData eventData)

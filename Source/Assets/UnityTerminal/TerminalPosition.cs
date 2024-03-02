@@ -7,6 +7,7 @@ namespace CI.UnityTerminal
     public enum TerminalPosition
     {
         Bottom = 0,
-        Top = 1
+        Top = 1,
+        Fullscreen = 2
     }
 }

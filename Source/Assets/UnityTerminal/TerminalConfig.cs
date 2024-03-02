@@ -9,7 +9,7 @@ namespace CI.UnityTerminal
         public TerminalColours Colours { get; set; }
 
         /// <summary>
-        /// The number of log message the terminal will keep in memory. Setting this to a too high value could cause performance issues
+        /// The number of log messages the terminal will keep in memory. The default is 100 - setting this too high could affect performance
         /// </summary>
         public int MaxBufferSize { get; set; }
 
@@ -19,12 +19,12 @@ namespace CI.UnityTerminal
         public TerminalPosition Position { get; set; }
 
         /// <summary>
-        /// The height of the terminal
+        /// The height of the terminal. Ignored if the Postion is Fullscreen
         /// </summary>
         public int Height { get; set; }
 
         /// <summary>
-        /// The width of the terminal. Null to stretch across the screen
+        /// The width of the terminal. Null to stretch across the screen, ignored if the Postion is Fullscreen
         /// </summary>
         public int? Width { get; set; }
 
