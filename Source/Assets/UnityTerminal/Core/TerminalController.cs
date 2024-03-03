@@ -82,6 +82,24 @@ namespace CI.UnityTerminal.Core
                 Description = "Closes the terminal",
                 Callback = e => IsVisible = false
             });
+            RegisterCommand(new CustomCommand()
+            {
+                Command = "position fullscreen",
+                Description = "Fullscreen the terminal",
+                Callback = e => SetPosition(TerminalPosition.Fullscreen)
+            });
+            RegisterCommand(new CustomCommand()
+            {
+                Command = "position top",
+                Description = "Position the terminal at the top of the screen",
+                Callback = e => SetPosition(TerminalPosition.Top)
+            });
+            RegisterCommand(new CustomCommand()
+            {
+                Command = "position bottom",
+                Description = "Position the terminal at the bottom of the screen",
+                Callback = e => SetPosition(TerminalPosition.Bottom)
+            });
 
             UpdateVisibility();
         }
@@ -118,7 +136,7 @@ namespace CI.UnityTerminal.Core
 
             _buffer = new Queue<string>(_config.MaxBufferSize);
 
-            SetPosition();
+            SetPosition(_config.Position);
         }
 
         public void Log(LogLevel logLevel, string message, bool forceScroll)
@@ -186,10 +204,9 @@ namespace CI.UnityTerminal.Core
             Log(LogLevel.None, _input.text, true);
 
             HandleCommands();
-
             UpdateCommandHistory();
-
             CommandEntered?.Invoke(this, new CommandEnteredEventArgs() { Command = _input.text });
+
             ClearInput();
             FocusInput();
         }
@@ -251,12 +268,9 @@ namespace CI.UnityTerminal.Core
             if (_commandHistory.Count >= _maxCommandHistory)
             {
                 _commandHistory.RemoveAt(0);
-                _commandHistory.Add(_input.text);
             }
-            else
-            {
-                _commandHistory.Add(_input.text);
-            }
+
+            _commandHistory.Add(_input.text);
         }
 
         private void IncrementCommandHistory(int value)
@@ -275,6 +289,7 @@ namespace CI.UnityTerminal.Core
             if (_commandHistoryIndex >= 0)
             {
                 _input.text = _commandHistory[_commandHistoryIndex];
+                _input.MoveTextEnd(false);
             }
             else
             {
@@ -354,11 +369,11 @@ namespace CI.UnityTerminal.Core
             }
         }
 
-        private void SetPosition()
+        private void SetPosition(TerminalPosition position)
         {
             var rectTransform = GetComponent<RectTransform>();
 
-            if (_config.Position == TerminalPosition.Bottom)
+            if (position == TerminalPosition.Bottom)
             {
                 if (_config.Width == null)
                 {
@@ -376,7 +391,7 @@ namespace CI.UnityTerminal.Core
 
                 rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, _config.Height);
             }
-            else if (_config.Position == TerminalPosition.Top)
+            else if (position == TerminalPosition.Top)
             {
                 if (_config.Width == null)
                 {
@@ -402,6 +417,8 @@ namespace CI.UnityTerminal.Core
                 rectTransform.offsetMin = Vector2.zero;
                 rectTransform.offsetMax = Vector2.zero;
             }
+
+            ScrollToEnd();
         }
 
         public void OnDrag(PointerEventData eventData)

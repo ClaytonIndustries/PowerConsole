@@ -76,9 +76,9 @@ namespace CI.UnityTerminal
                 _controller = UnityEngine.Object.FindObjectsByType<TerminalController>(FindObjectsInactive.Include, FindObjectsSortMode.None).First();
                 _controller.gameObject.SetActive(true);
                 _controller.CommandEntered += (s, e) => CommandEntered?.Invoke(s, e);
-            }
 
-            _controller.Initialise(config);
+                _controller.Initialise(config);
+            }
         }
 
         /// <summary>
