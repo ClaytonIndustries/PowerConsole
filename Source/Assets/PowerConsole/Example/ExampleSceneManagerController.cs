@@ -10,11 +10,10 @@ namespace CI.PowerConsole.Examples
 
         public void Start()
         {
+            // Drag the PowerConsole prefab into your root scene
+
             // Initialise the console - make sure this is called once before trying to interact with it
             PowerConsole.Initialise();
-
-            // Enable the console - it is disabled by default
-            PowerConsole.IsEnabled = true;
 
             // Log some messages to the console at different severity levels
             PowerConsole.Log(LogLevel.Trace, "Hello World");
@@ -36,10 +35,10 @@ namespace CI.PowerConsole.Examples
                 Command = "start server",
                 Description = "Starts a web server",
                 Args = new List<CommandArgument>()
-            {
-                new CommandArgument() { Name = "-p", Description = "Port number to host on" },
-                new CommandArgument() { Name = "-t", Description = "Title of the window" }
-            },
+                {
+                    new CommandArgument() { Name = "-p", Description = "Port number to host on" },
+                    new CommandArgument() { Name = "-t", Description = "Title of the window" }
+                },
                 Callback = Command1Callback
             });
         }

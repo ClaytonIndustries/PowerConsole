@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TMPro;
-using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -157,6 +156,8 @@ namespace CI.PowerConsole.Core
             _buffer = new Queue<string>(_config.MaxBufferSize);
 
             SetPosition();
+
+            IsEnabled = true;
         }
 
         public void Log(LogLevel logLevel, string message, bool forceScroll)
@@ -201,11 +202,13 @@ namespace CI.PowerConsole.Core
 
         public void UnregisterCommand(string command)
         {
-            if (_commands.ContainsKey(command))
+            if (CommandExists(command))
             {
                 _commands.Remove(command);
             }
         }
+
+        public bool CommandExists(string command) => _commands.ContainsKey(command);
 
         private void UpdateVisibility()
         {

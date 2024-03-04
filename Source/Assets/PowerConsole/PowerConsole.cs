@@ -73,7 +73,7 @@ namespace CI.PowerConsole
         {
             if (_controller == null)
             {
-                _controller = UnityEngine.Object.FindObjectsByType<ConsoleController>(FindObjectsInactive.Include, FindObjectsSortMode.None).First();
+                _controller = UnityEngine.Object.FindObjectsOfType<ConsoleController>(true).First();
                 _controller.gameObject.SetActive(true);
                 _controller.CommandEntered += (s, e) => CommandEntered?.Invoke(s, e);
 
@@ -116,5 +116,12 @@ namespace CI.PowerConsole
         /// </summary>
         /// <param name="command">The command to remove</param>
         public static void UnregisterCommand(string command) => _controller.UnregisterCommand(command); 
+
+        /// <summary>
+        /// Determines whether the specified command is registered
+        /// </summary>
+        /// <param name="command">The command to check</param>
+        /// <returns>True if the command is registered, otherwise false</returns>
+        public static bool CommandExists(string command) => _controller.CommandExists(command);
     }
 }
