@@ -1,5 +1,5 @@
 ﻿
-namespace CI.UnityTerminal
+namespace CI.PowerConsole
 {
     /// <summary>
     /// The severity level of a message

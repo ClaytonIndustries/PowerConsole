@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CI.UnityTerminal
+namespace CI.PowerConsole
 {
     public class CommandCallback
     {

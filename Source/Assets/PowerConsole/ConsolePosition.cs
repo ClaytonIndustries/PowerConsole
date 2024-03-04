@@ -1,10 +1,10 @@
 ﻿
-namespace CI.UnityTerminal
+namespace CI.PowerConsole
 {
     /// <summary>
     /// Where the terminal should be positioned
     /// </summary>
-    public enum TerminalPosition
+    public enum ConsolePosition
     {
         Bottom = 0,
         Top = 1,

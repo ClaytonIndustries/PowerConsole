@@ -1,5 +1,5 @@
 ﻿
-namespace CI.UnityTerminal
+namespace CI.PowerConsole
 {
     public class CommandArgument
     {

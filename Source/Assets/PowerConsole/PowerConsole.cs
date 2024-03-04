@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CI.UnityTerminal.Core;
+using CI.PowerConsole.Core;
 using UnityEngine;
 
-namespace CI.UnityTerminal
+namespace CI.PowerConsole
 {
-    public static class UnityTerminal
+    public static class PowerConsole
     {
         /// <summary>
-        /// Should the terminal collect logs
+        /// Should the console collect logs
         /// </summary>
         public static bool IsEnabled
         {
@@ -18,7 +18,7 @@ namespace CI.UnityTerminal
         }
 
         /// <summary>
-        /// Is the terminal visible to the user
+        /// Is the console visible to the user
         /// </summary>
         public static bool IsVisible
         {
@@ -36,7 +36,7 @@ namespace CI.UnityTerminal
         }
 
         /// <summary>
-        /// Sets the title of the terminal
+        /// Sets the title of the console
         /// </summary>
         public static string Title
         {
@@ -54,26 +54,26 @@ namespace CI.UnityTerminal
         }
 
         /// <summary>
-        /// Raised when the user enters a command. Call this once before attempting to interact with the terminal
+        /// Raised when the user enters a command
         /// </summary>
         public static event EventHandler<CommandEnteredEventArgs> CommandEntered;
 
-        private static TerminalController _controller;
+        private static ConsoleController _controller;
 
         /// <summary>
-        /// Initialises the terminal. Call this once before attempting to interact with the terminal
+        /// Initialises the console. Call this once before attempting to interact with the console
         /// </summary>
-        public static void Initialise() => Initialise(new TerminalConfig());
+        public static void Initialise() => Initialise(new ConsoleConfig());
 
         /// <summary>
-        /// Initialises the terminal with the specified configuration
+        /// Initialises the console with the specified configuration. Call this once before attempting to interact with the console
         /// </summary>
         /// <param name="config">The configuration</param>
-        public static void Initialise(TerminalConfig config)
+        public static void Initialise(ConsoleConfig config)
         {
             if (_controller == null)
             {
-                _controller = UnityEngine.Object.FindObjectsByType<TerminalController>(FindObjectsInactive.Include, FindObjectsSortMode.None).First();
+                _controller = UnityEngine.Object.FindObjectsByType<ConsoleController>(FindObjectsInactive.Include, FindObjectsSortMode.None).First();
                 _controller.gameObject.SetActive(true);
                 _controller.CommandEntered += (s, e) => CommandEntered?.Invoke(s, e);
 
@@ -82,7 +82,7 @@ namespace CI.UnityTerminal
         }
 
         /// <summary>
-        /// Logs a message to the terminal
+        /// Logs a message to the console
         /// </summary>
         /// <param name="logLevel">The level to log this message at</param>
         /// <param name="message">The message to log</param>
@@ -95,7 +95,7 @@ namespace CI.UnityTerminal
         }
 
         /// <summary>
-        /// Clears all text from the terminal
+        /// Clears all text from the console
         /// </summary>
         public static void Clear()
         {

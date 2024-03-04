@@ -1,12 +1,12 @@
 ﻿
-namespace CI.UnityTerminal
+namespace CI.PowerConsole
 {
-    public class TerminalConfig
+    public class ConsoleConfig
     {
         /// <summary>
         /// Set colours for each log level
         /// </summary>
-        public TerminalColours Colours { get; set; }
+        public ConsoleColours Colours { get; set; }
 
         /// <summary>
         /// The number of log messages the terminal will keep in memory. The default is 100 - setting this too high could affect performance
@@ -16,7 +16,7 @@ namespace CI.UnityTerminal
         /// <summary>
         /// The position of the terminal
         /// </summary>
-        public TerminalPosition Position { get; set; }
+        public ConsolePosition Position { get; set; }
 
         /// <summary>
         /// The height of the terminal. Ignored if the Postion is Fullscreen
@@ -33,11 +33,11 @@ namespace CI.UnityTerminal
         /// </summary>
         public bool IsFixed { get; set; }
 
-        public TerminalConfig()
+        public ConsoleConfig()
         {
-            Colours = new TerminalColours();
+            Colours = new ConsoleColours();
             MaxBufferSize = 100;
-            Position = TerminalPosition.Bottom;
+            Position = ConsolePosition.Bottom;
             Height = 400;
             Width = null;
             IsFixed = false;

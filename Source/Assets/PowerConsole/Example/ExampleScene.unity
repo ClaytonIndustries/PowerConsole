@@ -801,7 +801,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1330152779}
   m_CullTransparentMesh: 1
---- !u!1001 &1383219363
+--- !u!1001 &1365032667
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -811,43 +811,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 69761012623670063, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
       propertyPath: m_Name
-      value: Terminal
-      objectReference: {fileID: 0}
-    - target: {fileID: 1929835785012907594, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_Pivot.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1929835785012907594, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_Pivot.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1929835785012907594, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1929835785012907594, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1929835785012907594, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1929835785012907594, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1929835785012907594, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1929835785012907594, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2953532549308163937, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_TextWrappingMode
-      value: 1
+      value: PowerConsole
       objectReference: {fileID: 0}
     - target: {fileID: 3151868473546282708, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
       propertyPath: m_Pivot.x
@@ -927,38 +891,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3151868473546282708, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3762572859226420112, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_fontSize
-      value: 16
-      objectReference: {fileID: 0}
-    - target: {fileID: 3762572859226420112, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_fontSizeBase
-      value: 16
-      objectReference: {fileID: 0}
-    - target: {fileID: 4735200103353952917, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: -2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4735200103353952917, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6208521337069428993, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6208521337069428993, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6510682359182067947, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_Interactable
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7709181651418782048, guid: 0ed068b60cf043249be5677d5960315a, type: 3}
-      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -1468,4 +1400,4 @@ SceneRoots:
   - {fileID: 970585487}
   - {fileID: 1876570486}
   - {fileID: 1804259572}
-  - {fileID: 1383219363}
+  - {fileID: 1365032667}

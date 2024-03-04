@@ -7,9 +7,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace CI.UnityTerminal.Core
+namespace CI.PowerConsole.Core
 {
-    public class TerminalController : MonoBehaviour, IDragHandler
+    public class ConsoleController : MonoBehaviour, IDragHandler
     {
         private const int _maxCommandHistory = 50;
 
@@ -38,7 +38,7 @@ namespace CI.UnityTerminal.Core
         private Button _closeButton;
         private Scrollbar _scrollbar;
 
-        private TerminalConfig _config;
+        private ConsoleConfig _config;
         private bool _isFollowingTail = true;
         private int _commandHistoryIndex = -1;
         private Queue<string> _buffer;
@@ -48,11 +48,11 @@ namespace CI.UnityTerminal.Core
 
         public void Awake()
         {
-            _text = GameObject.Find("TerminalFeed").GetComponent<TMP_InputField>();
-            _input = GameObject.Find("TerminalInput").GetComponent<TMP_InputField>();
-            _title = GameObject.Find("TerminalTitle").GetComponent<TextMeshProUGUI>();
-            _closeButton = GameObject.Find("CloseButton").GetComponent<Button>();
-            _scrollbar = GameObject.Find("Scrollbar Vertical").GetComponent<Scrollbar>();
+            _text = GameObject.Find("ConsoleFeed").GetComponent<TMP_InputField>();
+            _input = GameObject.Find("ConsoleInput").GetComponent<TMP_InputField>();
+            _title = GameObject.Find("ConsoleTitle").GetComponent<TextMeshProUGUI>();
+            _closeButton = GameObject.Find("ConsoleCloseButton").GetComponent<Button>();
+            _scrollbar = GameObject.Find("FeedScrollbarVertical").GetComponent<Scrollbar>();
 
             _closeButton.onClick.AddListener(() =>
             {
@@ -73,32 +73,32 @@ namespace CI.UnityTerminal.Core
             RegisterCommand(new CustomCommand()
             {
                 Command = "clear",
-                Description = "Clears the terminal",
+                Description = "Clears the console",
                 Callback = e => ClearDisplay()
             });
             RegisterCommand(new CustomCommand()
             {
                 Command = "exit",
-                Description = "Closes the terminal",
+                Description = "Closes the console",
                 Callback = e => IsVisible = false
             });
             RegisterCommand(new CustomCommand()
             {
                 Command = "position fullscreen",
-                Description = "Fullscreen the terminal",
-                Callback = e => SetPosition(TerminalPosition.Fullscreen)
+                Description = "Fullscreen the console",
+                Callback = e => SetPosition(ConsolePosition.Fullscreen)
             });
             RegisterCommand(new CustomCommand()
             {
                 Command = "position top",
-                Description = "Position the terminal at the top of the screen",
-                Callback = e => SetPosition(TerminalPosition.Top)
+                Description = "Position the console at the top of the screen",
+                Callback = e => SetPosition(ConsolePosition.Top)
             });
             RegisterCommand(new CustomCommand()
             {
                 Command = "position bottom",
-                Description = "Position the terminal at the bottom of the screen",
-                Callback = e => SetPosition(TerminalPosition.Bottom)
+                Description = "Position the console at the bottom of the screen",
+                Callback = e => SetPosition(ConsolePosition.Bottom)
             });
 
             UpdateVisibility();
@@ -130,7 +130,7 @@ namespace CI.UnityTerminal.Core
             }
         }
 
-        public void Initialise(TerminalConfig config)
+        public void Initialise(ConsoleConfig config)
         {
             _config = config;
 
@@ -369,11 +369,11 @@ namespace CI.UnityTerminal.Core
             }
         }
 
-        private void SetPosition(TerminalPosition position)
+        private void SetPosition(ConsolePosition position)
         {
             var rectTransform = GetComponent<RectTransform>();
 
-            if (position == TerminalPosition.Bottom)
+            if (position == ConsolePosition.Bottom)
             {
                 if (_config.Width == null)
                 {
@@ -391,7 +391,7 @@ namespace CI.UnityTerminal.Core
 
                 rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, _config.Height);
             }
-            else if (position == TerminalPosition.Top)
+            else if (position == ConsolePosition.Top)
             {
                 if (_config.Width == null)
                 {

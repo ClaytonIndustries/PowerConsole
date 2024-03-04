@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CI.UnityTerminal
+namespace CI.PowerConsole
 {
     public class CommandEnteredEventArgs : EventArgs
     {

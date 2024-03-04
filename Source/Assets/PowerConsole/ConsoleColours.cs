@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace CI.UnityTerminal
+namespace CI.PowerConsole
 {
-    public class TerminalColours
+    public class ConsoleColours
     {
         /// <summary>
         /// The text colour of trace logs
