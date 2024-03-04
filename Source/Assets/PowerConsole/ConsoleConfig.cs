@@ -29,7 +29,7 @@ namespace CI.PowerConsole
         public int? Width { get; set; }
 
         /// <summary>
-        /// Can the terminal be moved
+        /// Can the terminal be dragged
         /// </summary>
         public bool IsFixed { get; set; }
 
@@ -37,7 +37,7 @@ namespace CI.PowerConsole
         {
             Colours = new ConsoleColours();
             MaxBufferSize = 100;
-            Position = ConsolePosition.Bottom;
+            Position = ConsolePosition.Top;
             Height = 400;
             Width = null;
             IsFixed = false;

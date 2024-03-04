@@ -6,7 +6,7 @@ namespace CI.PowerConsole
     public class CustomCommand
     {
         /// <summary>
-        /// Arguments that can be added after the command beginning with - or --. Shown by the help command
+        /// Optional arguments that can be added after the command beginning with - or --. Shown by the help command
         /// </summary>
         public List<CommandArgument> Args { get; set; }
 
@@ -16,12 +16,12 @@ namespace CI.PowerConsole
         public string Command { get; set; }
 
         /// <summary>
-        /// Description of the command shown by the help
+        /// Optional description of the command. Shown by the help command
         /// </summary>
         public string Description { get; set; }
 
         /// <summary>
-        /// Callback raised when this command in entered
+        /// Callback raised when this command is entered
         /// </summary>
         public Action<CommandCallback> Callback { get; set; }
     }

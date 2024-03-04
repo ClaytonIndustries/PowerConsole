@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TMPro;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -35,6 +36,7 @@ namespace CI.PowerConsole.Core
         private TMP_InputField _text;
         private TMP_InputField _input;
         private TextMeshProUGUI _title;
+        private Button _submitButton;
         private Button _closeButton;
         private Scrollbar _scrollbar;
 
@@ -51,8 +53,14 @@ namespace CI.PowerConsole.Core
             _text = GameObject.Find("ConsoleFeed").GetComponent<TMP_InputField>();
             _input = GameObject.Find("ConsoleInput").GetComponent<TMP_InputField>();
             _title = GameObject.Find("ConsoleTitle").GetComponent<TextMeshProUGUI>();
+            _submitButton = GameObject.Find("ConsoleSubmitButton").GetComponent<Button>();
             _closeButton = GameObject.Find("ConsoleCloseButton").GetComponent<Button>();
             _scrollbar = GameObject.Find("FeedScrollbarVertical").GetComponent<Scrollbar>();
+
+            _submitButton.onClick.AddListener(() =>
+            {
+                OnEnterPressed();
+            });
 
             _closeButton.onClick.AddListener(() =>
             {
@@ -86,19 +94,31 @@ namespace CI.PowerConsole.Core
             {
                 Command = "position fullscreen",
                 Description = "Fullscreen the console",
-                Callback = e => SetPosition(ConsolePosition.Fullscreen)
+                Callback = e =>
+                {
+                    _config.Position = ConsolePosition.Fullscreen;
+                    SetPosition();
+                }
             });
             RegisterCommand(new CustomCommand()
             {
                 Command = "position top",
                 Description = "Position the console at the top of the screen",
-                Callback = e => SetPosition(ConsolePosition.Top)
+                Callback = e =>
+                {
+                    _config.Position = ConsolePosition.Top;
+                    SetPosition();
+                }
             });
             RegisterCommand(new CustomCommand()
             {
                 Command = "position bottom",
                 Description = "Position the console at the bottom of the screen",
-                Callback = e => SetPosition(ConsolePosition.Bottom)
+                Callback = e =>
+                {
+                    _config.Position = ConsolePosition.Bottom;
+                    SetPosition();
+                }
             });
 
             UpdateVisibility();
@@ -136,7 +156,7 @@ namespace CI.PowerConsole.Core
 
             _buffer = new Queue<string>(_config.MaxBufferSize);
 
-            SetPosition(_config.Position);
+            SetPosition();
         }
 
         public void Log(LogLevel logLevel, string message, bool forceScroll)
@@ -369,53 +389,58 @@ namespace CI.PowerConsole.Core
             }
         }
 
-        private void SetPosition(ConsolePosition position)
+        private void SetPosition()
         {
             var rectTransform = GetComponent<RectTransform>();
 
-            if (position == ConsolePosition.Bottom)
+            if (_config.Position == ConsolePosition.Bottom)
             {
                 if (_config.Width == null)
                 {
                     rectTransform.anchorMin = new Vector2(0, 0);
                     rectTransform.anchorMax = new Vector2(1, 0);
                     rectTransform.pivot = new Vector2(0.5f, 0);
+                    rectTransform.offsetMin = new Vector2(10, 10);
+                    rectTransform.offsetMax = new Vector2(-10, 0);
+                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, _config.Height);
                 }
                 else
                 {
                     rectTransform.anchorMin = new Vector2(0, 0);
                     rectTransform.anchorMax = new Vector2(0, 0);
                     rectTransform.pivot = new Vector2(0, 0);
-                    rectTransform.sizeDelta = new Vector2((float)_config.Width, rectTransform.sizeDelta.y);
+                    rectTransform.offsetMin = new Vector2(10, 10);
+                    rectTransform.sizeDelta = new Vector2((float)_config.Width, _config.Height);
                 }
-
-                rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, _config.Height);
             }
-            else if (position == ConsolePosition.Top)
+            else if (_config.Position == ConsolePosition.Top)
             {
                 if (_config.Width == null)
                 {
                     rectTransform.anchorMin = new Vector2(0, 1);
                     rectTransform.anchorMax = new Vector2(1, 1);
                     rectTransform.pivot = new Vector2(0.5f, 1);
+                    rectTransform.offsetMin = new Vector2(10, 0);
+                    rectTransform.offsetMax = new Vector2(-10, -10);
+                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, _config.Height);
                 }
                 else
                 {
                     rectTransform.anchorMin = new Vector2(0, 1);
                     rectTransform.anchorMax = new Vector2(0, 1);
                     rectTransform.pivot = new Vector2(0, 1);
-                    rectTransform.sizeDelta = new Vector2((float)_config.Width, rectTransform.sizeDelta.y);
+                    rectTransform.offsetMin = new Vector2(10, rectTransform.offsetMin.y);
+                    rectTransform.offsetMax = new Vector2(rectTransform.offsetMax.x, -10);
+                    rectTransform.sizeDelta = new Vector2((float)_config.Width, _config.Height);
                 }
-
-                rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, _config.Height);
             }
             else
             {
                 rectTransform.anchorMin = new Vector2(0, 0);
                 rectTransform.anchorMax = new Vector2(1, 1);
                 rectTransform.pivot = new Vector2(0.5f, 0.5f);
-                rectTransform.offsetMin = Vector2.zero;
-                rectTransform.offsetMax = Vector2.zero;
+                rectTransform.offsetMin = new Vector2(10, 10);
+                rectTransform.offsetMax = new Vector2(-10, -10);
             }
 
             ScrollToEnd();

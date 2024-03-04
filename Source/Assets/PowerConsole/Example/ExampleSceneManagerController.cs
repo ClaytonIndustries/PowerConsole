@@ -7,8 +7,6 @@ public class ExampleSceneManagerController : MonoBehaviour
 {
     public TMP_InputField LogMessageInputField;
 
-    private float _nextTimeCall;
-
     public void Start()
     {
         // Initialise the console - make sure this is called once before trying to interact with it
@@ -43,15 +41,6 @@ public class ExampleSceneManagerController : MonoBehaviour
             },
             Callback = Command1Callback
         });
-    }
-
-    public void Update()
-    {
-        if (Time.time >= _nextTimeCall)
-        {
-            //PowerConsole.Log(LogLevel.Error, "Hello World");
-            _nextTimeCall += 0.1f;
-        }
     }
 
     public void WriteLogMessage()
